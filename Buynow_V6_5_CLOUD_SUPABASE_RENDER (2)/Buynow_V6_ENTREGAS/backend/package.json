@@ -1,0 +1,14 @@
+{
+  "name": "buynow-backend",
+  "version": "4.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "pg": "^8.16.3"
+  },
+  "engines": {
+    "node": ">=20 <25"
+  }
+}
