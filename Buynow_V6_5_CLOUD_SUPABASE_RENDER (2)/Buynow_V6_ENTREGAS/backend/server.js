@@ -16,11 +16,47 @@ function body(req){return new Promise((ok,no)=>{let s="";req.on("data",c=>s+=c);
 function hp(p,s=crypto.randomBytes(16).toString("hex")){return {salt:s,hash:crypto.scryptSync(p,s,64).toString("hex")}}
 function verify(p,s,h){return crypto.timingSafeEqual(Buffer.from(hp(p,s).hash,"hex"),Buffer.from(h,"hex"))}
 function b64(x){return Buffer.from(JSON.stringify(x)).toString("base64url")}
-function token(u){let a=b64({alg:"HS256",typ:"JWT"}),p=b64({sub:String(u.id),email:u.email,exp:Math.floor(Date.now()/1000)+2592000),d=a+"."+p;
-return d+"."+crypto.createHmac("sha256",SECRET).update(d).digest("base64url")}
-function auth(req){let x=req.headers.authorization||"";if(!x.startsWith("Bearer "))return null;let [a,p,s]=x.slice(7).split(".");
-if(!a||!p||!s)return null;let e=crypto.createHmac("sha256",SECRET).update(a+"."+p).digest("base64url");if(s!==e)return null;
-let j=JSON.parse(Buffer.from(p,"base64url"));return j.exp>Date.now()/1000?j:null}
+function token(u) {
+  const header = b64({
+    alg: "HS256",
+    typ: "JWT"
+  });
+
+  const payload = b64({
+    sub: String(u.id),
+    email: u.email,
+    exp: Math.floor(Date.now() / 1000) + 2592000
+  });
+
+  const data = header + "." + payload;
+
+  const signature = crypto
+    .createHmac("sha256", JWT_SECRET)
+    .update(data)
+    .digest("base64url");
+
+  return data + "." + signature;
+}
+  const header = b64({
+    alg: "HS256",
+    typ: "JWT"
+  });
+
+  const payload = b64({
+    sub: String(u.id),
+    email: u.email,
+    exp: Math.floor(Date.now() / 1000) + 2592000
+  });
+
+  const data = header + "." + payload;
+
+  const signature = crypto
+    .createHmac("sha256", JWT_SECRET)
+    .update(data)
+    .digest("base64url");
+
+  return data + "." + signature;
+}
 const q=(s,p=[])=>pool.query(s,p);
 
 async function schema(){
